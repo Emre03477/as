@@ -164,12 +164,38 @@ insertProduct.run(
 - Session tabanlı kimlik doğrulama
 - SQL injection koruması (prepared statements)
 - XSS koruması
+- Minecraft kullanıcı adı doğrulaması
 
-**Önemli:** Üretim ortamında:
-1. `config.json` içindeki `sessionSecret`'i güçlü bir değerle değiştirin
-2. HTTPS kullanın
-3. Uygun güvenlik duvarı kuralları ekleyin
-4. WebSender için kimlik doğrulama ekleyin
+**Önemli Güvenlik Uyarıları:** 
+
+Üretim ortamında mutlaka aşağıdaki adımları uygulayın:
+
+1. **Session Secret**: `config.json` içindeki `sessionSecret`'i güçlü, rastgele bir değerle değiştirin:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+2. **HTTPS**: Üretim ortamında HTTPS kullanın ve `server.js` içinde cookie.secure'u true yapın
+
+3. **WebSender Güvenliği**: 
+   - WebSender için API key kimlik doğrulaması ekleyin
+   - IP whitelisting kullanın
+   - WebSender portunu firewall ile koruyun
+   - `config.json` içinde `apiKey` alanını doldurun
+
+4. **Rate Limiting**: Üretim için express-rate-limit paketi ekleyin:
+   ```javascript
+   const rateLimit = require('express-rate-limit');
+   const purchaseLimiter = rateLimit({
+     windowMs: 15 * 60 * 1000, // 15 minutes
+     max: 10 // limit each IP to 10 requests per windowMs
+   });
+   app.post('/purchase', purchaseLimiter, requireAuth, ...);
+   ```
+
+5. **Güvenlik Duvarı**: Uygun güvenlik duvarı kuralları ekleyin
+
+6. **Environment Variables**: Hassas bilgileri (secrets, API keys) ortam değişkenlerinde saklayın
 
 ## Lisans
 

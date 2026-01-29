@@ -353,6 +353,11 @@ body {
     color: #856404;
 }
 
+.status.failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
 /* Footer */
 .footer {
     background: rgba(0, 0, 0, 0.8);

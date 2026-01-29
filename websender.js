@@ -14,14 +14,21 @@ async function executeCommand(command) {
 
   const url = `http://${config.websender.host}:${config.websender.port}${config.websender.endpoint}`;
   
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+  
+  // Add API key if configured
+  if (config.websender.apiKey) {
+    headers['Authorization'] = `Bearer ${config.websender.apiKey}`;
+  }
+  
   try {
     const response = await axios.post(url, {
       command: command
     }, {
-      timeout: 5000,
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      timeout: config.websender.timeout || 5000,
+      headers: headers
     });
     
     return {

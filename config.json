@@ -7,7 +7,9 @@
     "enabled": true,
     "host": "localhost",
     "port": 4567,
-    "endpoint": "/api/execute"
+    "endpoint": "/api/execute",
+    "apiKey": "",
+    "timeout": 5000
   },
   "minecraft": {
     "serverName": "My Minecraft Server",

@@ -94,7 +94,17 @@ app.post('/register', async (req, res) => {
   const { username, email, password, minecraft_username } = req.body;
   
   if (!username || !email || !password || !minecraft_username) {
-    return res.render('register', { error: 'All fields are required' });
+    return res.render('register', { error: 'Tüm alanlar zorunludur' });
+  }
+
+  // Validate Minecraft username (3-16 chars, alphanumeric and underscores)
+  if (!/^[a-zA-Z0-9_]{3,16}$/.test(minecraft_username)) {
+    return res.render('register', { error: 'Geçersiz Minecraft kullanıcı adı (3-16 karakter, sadece harf, rakam ve _)' });
+  }
+
+  // Validate email format
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.render('register', { error: 'Geçersiz e-posta adresi' });
   }
 
   try {
@@ -104,7 +114,7 @@ app.post('/register', async (req, res) => {
     req.session.userId = result.lastInsertRowid;
     res.redirect('/');
   } catch (error) {
-    res.render('register', { error: 'Username or email already exists' });
+    res.render('register', { error: 'Kayıt başarısız. Lütfen farklı bilgiler deneyin.' });
   }
 });
 
@@ -143,36 +153,49 @@ app.post('/purchase', requireAuth, async (req, res) => {
   const { productId } = req.body;
   const userId = req.session.userId;
   
-  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
+  // Validate productId
+  if (!productId || isNaN(parseInt(productId))) {
+    return res.json({ success: false, message: 'Geçersiz ürün' });
+  }
+  
+  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(parseInt(productId));
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   
   if (!product) {
-    return res.json({ success: false, message: 'Product not found' });
+    return res.json({ success: false, message: 'Ürün bulunamadı' });
   }
   
-  // Insert purchase record
+  // Insert purchase record with pending status
   const stmt = db.prepare('INSERT INTO purchases (user_id, product_id, status) VALUES (?, ?, ?)');
-  const purchase = stmt.run(userId, productId, 'completed');
+  const purchase = stmt.run(userId, productId, 'pending');
   
-  // Execute WebSender command
+  // Execute WebSender command(s)
   const websenderService = require('./websender');
-  const command = product.command.replace('{username}', user.minecraft_username);
+  const command = product.command.replace(/{username}/g, user.minecraft_username);
   
   try {
-    await websenderService.executeCommand(command);
+    // Handle multiple commands separated by semicolons
+    if (command.includes(';')) {
+      const commands = command.split(';').map(cmd => cmd.trim()).filter(cmd => cmd.length > 0);
+      await websenderService.executeCommands(commands);
+    } else {
+      await websenderService.executeCommand(command);
+    }
     
-    // Update purchase status
+    // Update purchase status to delivered
     db.prepare('UPDATE purchases SET status = ? WHERE id = ?').run('delivered', purchase.lastInsertRowid);
     
     res.json({ 
       success: true, 
-      message: `${product.name} has been delivered to ${user.minecraft_username}!` 
+      message: `${product.name} ${user.minecraft_username} adlı oyuncuya teslim edildi!` 
     });
   } catch (error) {
     console.error('WebSender error:', error);
+    // Update status to failed
+    db.prepare('UPDATE purchases SET status = ? WHERE id = ?').run('failed', purchase.lastInsertRowid);
     res.json({ 
       success: false, 
-      message: 'Purchase recorded but delivery failed. Contact admin.' 
+      message: 'Teslimat başarısız oldu. Lütfen yöneticiyle iletişime geçin.' 
     });
   }
 });

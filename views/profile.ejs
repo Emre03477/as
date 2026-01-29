@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilim</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Minecraft Sunucusu</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Ana Sayfa</a>
+                <a href="/shop">Mağaza</a>
+                <a href="/profile">Profilim</a>
+                <a href="/logout">Çıkış</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding: 40px 20px;">
+        <h2>Profilim</h2>
+        
+        <div class="profile-info">
+            <div class="info-card">
+                <h3>Hesap Bilgileri</h3>
+                <p><strong>Kullanıcı Adı:</strong> <%= user.username %></p>
+                <p><strong>E-posta:</strong> <%= user.email %></p>
+                <p><strong>Minecraft Kullanıcı Adı:</strong> <%= user.minecraft_username %></p>
+                <p><strong>Üyelik Tarihi:</strong> <%= new Date(user.created_at).toLocaleDateString('tr-TR') %></p>
+            </div>
+        </div>
+
+        <h3>Satın Alma Geçmişi</h3>
+        <% if (purchases.length === 0) { %>
+            <p class="no-data">Henüz bir satın alma işleminiz yok.</p>
+        <% } else { %>
+            <div class="purchase-history">
+                <table class="purchases-table">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Açıklama</th>
+                            <th>Fiyat</th>
+                            <th>Durum</th>
+                            <th>Tarih</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% purchases.forEach(purchase => { %>
+                            <tr>
+                                <td><%= purchase.name %></td>
+                                <td><%= purchase.description %></td>
+                                <td><%= purchase.price.toFixed(2) %> TL</td>
+                                <td><span class="status <%= purchase.status %>"><%= purchase.status %></span></td>
+                                <td><%= new Date(purchase.created_at).toLocaleDateString('tr-TR') %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Minecraft Sunucusu. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+</body>
+</html>

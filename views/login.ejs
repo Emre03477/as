@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Minecraft Sunucusu</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Ana Sayfa</a>
+                <a href="/register">Kayıt Ol</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <div class="form-box">
+            <h2>Giriş Yap</h2>
+            <% if (error) { %>
+                <div class="error-message"><%= error %></div>
+            <% } %>
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label for="username">Kullanıcı Adı:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Şifre:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
+            </form>
+            <p class="form-footer">Hesabınız yok mu? <a href="/register">Kayıt olun</a></p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Minecraft Sunucusu. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+</body>
+</html>

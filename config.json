@@ -1,0 +1,18 @@
+{
+  "server": {
+    "port": 3000,
+    "sessionSecret": "your-secret-key-change-this-in-production"
+  },
+  "websender": {
+    "enabled": true,
+    "host": "localhost",
+    "port": 4567,
+    "endpoint": "/api/execute",
+    "apiKey": "",
+    "timeout": 5000
+  },
+  "minecraft": {
+    "serverName": "My Minecraft Server",
+    "serverIp": "play.yourserver.com"
+  }
+}

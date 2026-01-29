@@ -1,0 +1,14 @@
+node_modules/
+*.log
+.DS_Store
+.env
+*.db
+*.sqlite
+*.sqlite3
+config/database.json
+sessions/
+dist/
+backend/database/*.json
+backend/database/.locks/
+backend/backups/
+backend/logs/

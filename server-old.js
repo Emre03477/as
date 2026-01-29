@@ -71,33 +71,38 @@ function requireAuthAPI(req, res, next) {
   }
 }
 
-// API Routes
-// Auth check
-app.get('/api/auth/check', (req, res) => {
-  if (req.session.userId) {
-    const user = db.prepare('SELECT id, username, email, minecraft_username, created_at FROM users WHERE id = ?').get(req.session.userId);
-    res.json({ user });
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
-  }
+// Routes
+app.get('/', (req, res) => {
+  const products = db.prepare('SELECT * FROM products ORDER BY price ASC').all();
+  res.render('index', { 
+    user: req.session.userId ? db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId) : null,
+    products: products,
+    config: config.minecraft
+  });
 });
 
-// Register
-app.post('/api/auth/register', async (req, res) => {
+app.get('/register', (req, res) => {
+  if (req.session.userId) {
+    return res.redirect('/');
+  }
+  res.render('register', { error: null });
+});
+
+app.post('/register', async (req, res) => {
   const { username, email, password, minecraft_username } = req.body;
   
   if (!username || !email || !password || !minecraft_username) {
-    return res.status(400).json({ error: 'Tüm alanlar zorunludur' });
+    return res.render('register', { error: 'Tüm alanlar zorunludur' });
   }
 
   // Validate Minecraft username (3-16 chars, alphanumeric and underscores)
   if (!/^[a-zA-Z0-9_]{3,16}$/.test(minecraft_username)) {
-    return res.status(400).json({ error: 'Geçersiz Minecraft kullanıcı adı (3-16 karakter, sadece harf, rakam ve _)' });
+    return res.render('register', { error: 'Geçersiz Minecraft kullanıcı adı (3-16 karakter, sadece harf, rakam ve _)' });
   }
 
   // Validate email format
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ error: 'Geçersiz e-posta adresi' });
+    return res.render('register', { error: 'Geçersiz e-posta adresi' });
   }
 
   try {
@@ -105,42 +110,44 @@ app.post('/api/auth/register', async (req, res) => {
     const stmt = db.prepare('INSERT INTO users (username, email, password, minecraft_username) VALUES (?, ?, ?, ?)');
     const result = stmt.run(username, email, hashedPassword, minecraft_username);
     req.session.userId = result.lastInsertRowid;
-    const user = db.prepare('SELECT id, username, email, minecraft_username, created_at FROM users WHERE id = ?').get(result.lastInsertRowid);
-    res.json({ user });
+    res.redirect('/');
   } catch (error) {
-    res.status(400).json({ error: 'Kayıt başarısız. Lütfen farklı bilgiler deneyin.' });
+    res.render('register', { error: 'Kayıt başarısız. Lütfen farklı bilgiler deneyin.' });
   }
 });
 
-// Login
-app.post('/api/auth/login', async (req, res) => {
+app.get('/login', (req, res) => {
+  if (req.session.userId) {
+    return res.redirect('/');
+  }
+  res.render('login', { error: null });
+});
+
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   
   const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
   
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ error: 'Geçersiz kullanıcı adı veya şifre' });
+    return res.render('login', { error: 'Invalid username or password' });
   }
   
   req.session.userId = user.id;
-  const userResponse = db.prepare('SELECT id, username, email, minecraft_username, created_at FROM users WHERE id = ?').get(user.id);
-  res.json({ user: userResponse });
+  res.redirect('/');
 });
 
-// Logout
-app.post('/api/auth/logout', (req, res) => {
+app.get('/logout', (req, res) => {
   req.session.destroy();
-  res.json({ success: true });
+  res.redirect('/');
 });
 
-// Get all products
-app.get('/api/products', (req, res) => {
+app.get('/shop', requireAuth, (req, res) => {
   const products = db.prepare('SELECT * FROM products ORDER BY price ASC').all();
-  res.json(products);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  res.render('shop', { user, products });
 });
 
-// Purchase
-app.post('/api/purchase', requireAuthAPI, async (req, res) => {
+app.post('/purchase', requireAuth, async (req, res) => {
   const { productId } = req.body;
   const userId = req.session.userId;
   
@@ -191,8 +198,8 @@ app.post('/api/purchase', requireAuthAPI, async (req, res) => {
   }
 });
 
-// Get user purchases
-app.get('/api/purchases', requireAuthAPI, (req, res) => {
+app.get('/profile', requireAuth, (req, res) => {
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
   const purchases = db.prepare(`
     SELECT p.*, pr.name, pr.description, pr.price 
     FROM purchases p 
@@ -200,12 +207,7 @@ app.get('/api/purchases', requireAuthAPI, (req, res) => {
     WHERE p.user_id = ? 
     ORDER BY p.created_at DESC
   `).all(req.session.userId);
-  res.json(purchases);
-});
-
-// Serve React app for all other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.render('profile', { user, purchases });
 });
 
 const PORT = config.server.port || 3000;

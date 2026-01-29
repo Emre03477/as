@@ -7,3 +7,4 @@ node_modules/
 *.sqlite3
 config/database.json
 sessions/
+dist/

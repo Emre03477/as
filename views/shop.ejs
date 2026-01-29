@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mağaza</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Minecraft Sunucusu</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Ana Sayfa</a>
+                <a href="/shop">Mağaza</a>
+                <a href="/profile">Profilim</a>
+                <a href="/logout">Çıkış</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding: 40px 20px;">
+        <h2>Mağaza</h2>
+        <p class="welcome-message">Hoş geldin, <%= user.username %>! (Minecraft: <%= user.minecraft_username %>)</p>
+        
+        <div class="product-grid">
+            <% products.forEach(product => { %>
+                <div class="product-card">
+                    <div class="product-type <%= product.type %>"><%= product.type %></div>
+                    <h3><%= product.name %></h3>
+                    <p class="description"><%= product.description %></p>
+                    <p class="price"><%= product.price.toFixed(2) %> TL</p>
+                    <button class="btn btn-primary" onclick="purchaseProduct(<%= product.id %>)">Satın Al</button>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Minecraft Sunucusu. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= config.serverName %> - Mağaza</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1><%= config.serverName %></h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Ana Sayfa</a>
+                <% if (user) { %>
+                    <a href="/shop">Mağaza</a>
+                    <a href="/profile">Profilim</a>
+                    <a href="/logout">Çıkış</a>
+                <% } else { %>
+                    <a href="/login">Giriş Yap</a>
+                    <a href="/register">Kayıt Ol</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h2>Hoş Geldiniz!</h2>
+            <p class="server-ip">Sunucu IP: <%= config.serverIp %></p>
+            <% if (!user) { %>
+                <div class="cta-buttons">
+                    <a href="/register" class="btn btn-primary">Kayıt Ol</a>
+                    <a href="/login" class="btn btn-secondary">Giriş Yap</a>
+                </div>
+            <% } else { %>
+                <p class="welcome-message">Hoş geldin, <%= user.username %>!</p>
+                <a href="/shop" class="btn btn-primary">Mağazaya Git</a>
+            <% } %>
+        </div>
+    </header>
+
+    <section class="products">
+        <div class="container">
+            <h2>Popüler Ürünler</h2>
+            <div class="product-grid">
+                <% products.forEach(product => { %>
+                    <div class="product-card">
+                        <h3><%= product.name %></h3>
+                        <p class="description"><%= product.description %></p>
+                        <p class="price"><%= product.price.toFixed(2) %> TL</p>
+                        <% if (user) { %>
+                            <button class="btn btn-primary" onclick="purchaseProduct(<%= product.id %>)">Satın Al</button>
+                        <% } else { %>
+                            <a href="/login" class="btn btn-secondary">Giriş Yapın</a>
+                        <% } %>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 <%= config.serverName %>. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

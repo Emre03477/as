@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Menu, X, LogOut, User, ShoppingBag, Home } from 'lucide-react'
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate()
@@ -16,48 +18,67 @@ export default function Navbar({ user, setUser }) {
   }
 
   return (
-    <nav className="bg-black/30 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
+    <nav className="glass sticky top-0 z-50 border-b border-dark-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                ⚔️ Minecraft Shop
-              </div>
-            </Link>
-          </div>
+        <div className="flex justify-between h-16 items-center">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2 group">
+            <motion.div 
+              className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="text-white font-bold text-xl">⚔</span>
+            </motion.div>
+            <span className="text-xl font-bold gradient-text">
+              Minecraft Shop
+            </span>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-300 hover:text-white transition-colors duration-200">
-              Ana Sayfa
+            <Link 
+              to="/" 
+              className="text-gray-300 hover:text-primary-400 transition-colors flex items-center space-x-1"
+            >
+              <Home className="w-4 h-4" />
+              <span>Ana Sayfa</span>
             </Link>
             {user ? (
               <>
-                <Link to="/shop" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  Mağaza
+                <Link 
+                  to="/shop" 
+                  className="text-gray-300 hover:text-primary-400 transition-colors flex items-center space-x-1"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Mağaza</span>
                 </Link>
-                <Link to="/profile" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  Profilim
+                <Link 
+                  to="/profile" 
+                  className="text-gray-300 hover:text-primary-400 transition-colors flex items-center space-x-1"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profilim</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors duration-200"
+                  className="flex items-center space-x-1 px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
                 >
-                  Çıkış Yap
+                  <LogOut className="w-4 h-4" />
+                  <span>Çıkış</span>
                 </button>
               </>
             ) : (
               <>
                 <Link 
                   to="/login" 
-                  className="text-gray-300 hover:text-white transition-colors duration-200"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
                 >
                   Giriş Yap
                 </Link>
                 <Link 
                   to="/register" 
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-4 py-2 rounded-lg transition-all duration-200"
+                  className="btn-primary"
                 >
                   Kayıt Ol
                 </Link>
@@ -66,78 +87,78 @@ export default function Navbar({ user, setUser }) {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-300 hover:text-white focus:outline-none"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-gray-300 hover:text-white p-2"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
         {/* Mobile menu */}
-        {isOpen && (
-          <div className="md:hidden py-4 space-y-2">
-            <Link 
-              to="/" 
-              className="block px-4 py-2 text-gray-300 hover:bg-white/10 rounded-lg transition-colors duration-200"
-              onClick={() => setIsOpen(false)}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div 
+              className="md:hidden py-4 space-y-2"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              Ana Sayfa
-            </Link>
-            {user ? (
-              <>
-                <Link 
-                  to="/shop" 
-                  className="block px-4 py-2 text-gray-300 hover:bg-white/10 rounded-lg transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Mağaza
-                </Link>
-                <Link 
-                  to="/profile" 
-                  className="block px-4 py-2 text-gray-300 hover:bg-white/10 rounded-lg transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Profilim
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    setIsOpen(false)
-                  }}
-                  className="block w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 rounded-lg transition-colors duration-200"
-                >
-                  Çıkış Yap
-                </button>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="block px-4 py-2 text-gray-300 hover:bg-white/10 rounded-lg transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Giriş Yap
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="block px-4 py-2 text-purple-400 hover:bg-white/10 rounded-lg transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Kayıt Ol
-                </Link>
-              </>
-            )}
-          </div>
-        )}
+              <Link 
+                to="/" 
+                className="block px-4 py-3 text-gray-300 hover:bg-dark-hover rounded-lg transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Ana Sayfa
+              </Link>
+              {user ? (
+                <>
+                  <Link 
+                    to="/shop" 
+                    className="block px-4 py-3 text-gray-300 hover:bg-dark-hover rounded-lg transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Mağaza
+                  </Link>
+                  <Link 
+                    to="/profile" 
+                    className="block px-4 py-3 text-gray-300 hover:bg-dark-hover rounded-lg transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Profilim
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout()
+                      setIsOpen(false)
+                    }}
+                    className="block w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                  >
+                    Çıkış Yap
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="block px-4 py-3 text-gray-300 hover:bg-dark-hover rounded-lg transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Giriş Yap
+                  </Link>
+                  <Link 
+                    to="/register" 
+                    className="block px-4 py-3 text-primary-400 hover:bg-primary-500/10 rounded-lg transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Kayıt Ol
+                  </Link>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   )

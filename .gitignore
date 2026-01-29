@@ -8,3 +8,7 @@ node_modules/
 config/database.json
 sessions/
 dist/
+backend/database/*.json
+backend/database/.locks/
+backend/backups/
+backend/logs/
